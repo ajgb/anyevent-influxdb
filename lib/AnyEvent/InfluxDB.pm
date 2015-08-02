@@ -1378,6 +1378,31 @@ C<time>.
 The required C<on_success> code reference is executed if request was successful,
 otherwise executes the required C<on_error> code reference.
 
+If you do not want to handle all the fine details of the line protocol
+yourself, you can use
+L<InfluxDB::LineProtocol|https://metacpan.org/pod/InfluxDB::LineProtocol>
+to convert a hashref into a properly escaped string suitable to
+passing to C<write>:
+
+    use InfluxDB::LineProtocol qw(data2line);
+    my $line = data2line(
+        'cpu_load',
+        {
+            value => 0.64,
+            sensor => 'top', # no need to escape the string
+        },
+        {
+            host => 'server02',
+            region => 'eu-east',
+        },
+        # no need to get time()
+    );
+    $db->write(
+        ...
+        data => [ $line ]
+    );
+
+
 =cut
 
 sub _to_line {
